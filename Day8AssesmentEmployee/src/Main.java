@@ -1,3 +1,4 @@
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Optional;
@@ -10,21 +11,50 @@ public class Main {
     public static Scanner otherScanner;
 
 
-    public static void main(String[] args) {
-        ArrayList<Employee> employeesArrayList = new ArrayList<>();
+    public static void main(String[] args) throws FileNotFoundException,IOException,ClassNotFoundException{
+
+        File file = new File("Employees.txt");
+
+        ArrayList<Employee> employeesArrayList = loadFile(file);
 
         stringScanner = new Scanner(System.in);
         otherScanner = new Scanner(System.in);
 
-        userPrompt(employeesArrayList);
+        userPrompt(file,employeesArrayList);
 
 
 
     }
 
 
+    //load employee data from file onto the arraylist
+    public static ArrayList<Employee> loadFile(File file) throws FileNotFoundException,IOException,ClassNotFoundException{
+        if(!file.exists()){
+            return new ArrayList<>();
+        }
+        FileInputStream fileInputStream = new FileInputStream(file);
+        ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
+        ArrayList<Employee> employees= (ArrayList<Employee>) objectInputStream.readObject();
+        objectInputStream.close();
 
-    public static void userPrompt(ArrayList<Employee> employeesArrayList){
+        return employees;
+
+    }
+
+
+    //store arraylist data onto the file
+    public static void storeIntoFile(File file,ArrayList<Employee> employeeArrayList) throws FileNotFoundException,IOException,ClassNotFoundException{
+        FileOutputStream fileOutputStream = new FileOutputStream(file);
+        ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
+        objectOutputStream.writeObject(employeeArrayList);
+        objectOutputStream.close();
+
+    }
+
+
+
+    //user prompt
+    public static void userPrompt(File file,ArrayList<Employee> employeesArrayList) throws IOException, ClassNotFoundException {
         while(true){
             System.out.println("Enter \n" +
                     "1 to Add Employee \n" +
@@ -70,6 +100,7 @@ public class Main {
                     break;
 
                 case 8:
+                    storeIntoFile(file,employeesArrayList);
                     return;
 
                 default:
@@ -82,15 +113,16 @@ public class Main {
 
 
     //adding an employee into the list from keyboard
-    public static void addEmployee(ArrayList<Employee> employeesArrayList,int count){
-        while(count>0){
+    public static void addEmployee(ArrayList<Employee> employeesArrayList,int maxCount){
+        int count=1;
+        while(count<=maxCount){
             System.out.println("Enter employee "+count+" id : ");
             int id = otherScanner.nextInt();
             System.out.println("Enter employee "+count+" name : ");
             String name = stringScanner.nextLine();
             System.out.println("Enter employee "+count+" salary ");
             employeesArrayList.add(new Employee(name,id, otherScanner.nextDouble()));
-            count--;
+            count++;
         }
     }
 
